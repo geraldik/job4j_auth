@@ -7,7 +7,6 @@ import ru.job4j.repository.PersonRepository;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.StreamSupport;
 
 @Service
 @AllArgsConstructor
@@ -27,8 +26,15 @@ public class PersonService {
     }
 
     public List<Person> findAll() {
-        return StreamSupport.stream(
-                personRepository.findAll().spliterator(), false)
-                .toList();
+        return personRepository.findAll();
     }
+
+    public boolean existsById(int id) {
+       return personRepository.existsById(id);
+    }
+
+    public void deleteById(int id) {
+        personRepository.deleteById(id);
+    }
+
 }
