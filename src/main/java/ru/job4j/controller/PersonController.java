@@ -3,17 +3,20 @@ package ru.job4j.controller;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import ru.job4j.domain.Person;
 import ru.job4j.service.PersonService;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
-@RequestMapping("/person")
+@RequestMapping("/persons")
 @AllArgsConstructor
 public class PersonController {
     private final PersonService persons;
+    private BCryptPasswordEncoder encoder;
 
     @GetMapping("/")
     public List<Person> findAll() {
@@ -38,16 +41,28 @@ public class PersonController {
     }
 
     @PutMapping("/")
-    public ResponseEntity<Void> update(@RequestBody Person person) {
-        this.persons.save(person);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Boolean> update(@RequestBody Person person) {
+        Optional<Person> personsById = persons.findById(person.getId());
+        boolean result = personsById.isPresent();
+        if (result) {
+            this.persons.save(person);
+        }
+        return ResponseEntity.ok().body(result);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable int id) {
-        Person person = new Person();
-        person.setId(id);
-        this.persons.delete(person);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Boolean> delete(@PathVariable int id) {
+        boolean result = persons.existsById(id);
+        if (result) {
+            persons.deleteById(id);
+        }
+        return ResponseEntity.ok().body(result);
     }
+
+    @PostMapping("/sign-up")
+    public void signUp(@RequestBody Person person) {
+        person.setPassword(encoder.encode(person.getPassword()));
+        persons.save(person);
+    }
+
 }
