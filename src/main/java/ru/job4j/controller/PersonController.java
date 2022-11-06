@@ -17,7 +17,7 @@ public class PersonController {
     private final PersonService persons;
     private BCryptPasswordEncoder encoder;
 
-    @GetMapping("/")
+    @GetMapping("")
     public List<Person> findAll() {
         return persons.findAll();
     }
