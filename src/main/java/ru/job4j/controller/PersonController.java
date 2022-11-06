@@ -9,7 +9,6 @@ import ru.job4j.domain.Person;
 import ru.job4j.service.PersonService;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/persons")
@@ -41,13 +40,12 @@ public class PersonController {
     }
 
     @PutMapping("/")
-    public ResponseEntity<Boolean> update(@RequestBody Person person) {
-        Optional<Person> personsById = persons.findById(person.getId());
-        boolean result = personsById.isPresent();
-        if (result) {
-            this.persons.save(person);
-        }
-        return ResponseEntity.ok().body(result);
+    public ResponseEntity<Person> update(@RequestBody Person person) {
+        var personUpdate = this.persons.update(person);
+        return new ResponseEntity<>(
+                personUpdate.orElse(person),
+                personUpdate.isPresent() ? HttpStatus.OK : HttpStatus.NOT_FOUND
+        );
     }
 
     @DeleteMapping("/{id}")

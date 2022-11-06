@@ -37,4 +37,12 @@ public class PersonService {
         personRepository.deleteById(id);
     }
 
+    public Optional<Person> update(Person person) {
+        var personById = findById(person.getId());
+        if (personById.isPresent()) {
+            personById = Optional.of(save(person));
+        }
+        return personById;
+    }
+
 }
