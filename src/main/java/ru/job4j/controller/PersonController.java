@@ -54,7 +54,10 @@ public class PersonController {
         if (result) {
             persons.deleteById(id);
         }
-        return ResponseEntity.ok().body(result);
+        return new ResponseEntity<>(
+                result,
+                result ? HttpStatus.OK : HttpStatus.NOT_FOUND
+        );
     }
 
     @PostMapping("/sign-up")
