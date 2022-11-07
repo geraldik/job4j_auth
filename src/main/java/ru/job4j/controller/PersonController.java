@@ -14,6 +14,7 @@ import java.util.List;
 @RequestMapping("/persons")
 @AllArgsConstructor
 public class PersonController {
+    public static final String PASSWORD_MATCH = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#&()–{}:;',?/*~$^+=<>]).{8,20}$";
     private final PersonService persons;
     private BCryptPasswordEncoder encoder;
 
@@ -33,6 +34,20 @@ public class PersonController {
 
     @PostMapping("/")
     public ResponseEntity<Person> create(@RequestBody Person person) {
+        var login = person.getLogin();
+        var password = person.getPassword();
+        if (login == null || password == null) {
+            throw new NullPointerException("Login and password mustn't be empty");
+        }
+        if (!password.matches(PASSWORD_MATCH)) {
+            throw new IllegalArgumentException("""
+                    Password must contain at least one digit [0-9].
+                    Password must contain at least one lowercase Latin character [a-z].
+                    Password must contain at least one uppercase Latin character [A-Z].
+                    Password must contain at least one special character like ! @ # & ( ).
+                    Password must contain a length of at least 8 characters and a maximum of 20 characters.
+                    """);
+        }
         return new ResponseEntity<>(
                 this.persons.save(person),
                 HttpStatus.CREATED
