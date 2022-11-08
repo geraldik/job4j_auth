@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import ru.job4j.domain.Person;
 import ru.job4j.service.PersonService;
 
@@ -18,7 +19,7 @@ public class PersonController {
     private final PersonService persons;
     private BCryptPasswordEncoder encoder;
 
-    @GetMapping("")
+    @GetMapping()
     public List<Person> findAll() {
         return persons.findAll();
     }
@@ -26,14 +27,43 @@ public class PersonController {
     @GetMapping("/{id}")
     public ResponseEntity<Person> findById(@PathVariable int id) {
         var person = this.persons.findById(id);
+        if (person.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "There is no user with this id");
+        }
         return new ResponseEntity<>(
-                person.orElse(new Person()),
-                person.isPresent() ? HttpStatus.OK : HttpStatus.NOT_FOUND
+                person.get(),
+                HttpStatus.OK
         );
     }
 
-    @PostMapping("/")
-    public ResponseEntity<Person> create(@RequestBody Person person) {
+    @PutMapping()
+    public ResponseEntity<Void> update(@RequestBody Person person) {
+        var personUpdate = this.persons.update(person);
+        if(personUpdate.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "There is no user to be updated");
+        }
+        validatePersonFields(person);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable int id) {
+        if (!persons.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "There is no user with this id");
+        }
+        persons.deleteById(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/sign-up")
+    public ResponseEntity<Void> signUp(@RequestBody Person person) {
+        validatePersonFields(person);
+        person.setPassword(encoder.encode(person.getPassword()));
+        persons.save(person);
+        return ResponseEntity.ok().build();
+    }
+
+    private void validatePersonFields(Person person) {
         var login = person.getLogin();
         var password = person.getPassword();
         if (login == null || password == null) {
@@ -48,37 +78,6 @@ public class PersonController {
                     Password must contain a length of at least 8 characters and a maximum of 20 characters.
                     """);
         }
-        return new ResponseEntity<>(
-                this.persons.save(person),
-                HttpStatus.CREATED
-        );
-    }
-
-    @PutMapping("/")
-    public ResponseEntity<Person> update(@RequestBody Person person) {
-        var personUpdate = this.persons.update(person);
-        return new ResponseEntity<>(
-                personUpdate.orElse(person),
-                personUpdate.isPresent() ? HttpStatus.OK : HttpStatus.NOT_FOUND
-        );
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Boolean> delete(@PathVariable int id) {
-        boolean result = persons.existsById(id);
-        if (result) {
-            persons.deleteById(id);
-        }
-        return new ResponseEntity<>(
-                result,
-                result ? HttpStatus.OK : HttpStatus.NOT_FOUND
-        );
-    }
-
-    @PostMapping("/sign-up")
-    public void signUp(@RequestBody Person person) {
-        person.setPassword(encoder.encode(person.getPassword()));
-        persons.save(person);
     }
 
 }
