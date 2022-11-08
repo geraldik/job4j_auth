@@ -39,7 +39,7 @@ public class PersonController {
     @PutMapping()
     public ResponseEntity<Void> update(@RequestBody Person person) {
         var personUpdate = this.persons.update(person);
-        if(personUpdate.isEmpty()) {
+        if (personUpdate.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "There is no user to be updated");
         }
         validatePersonFields(person);
@@ -57,6 +57,9 @@ public class PersonController {
 
     @PostMapping("/sign-up")
     public ResponseEntity<Void> signUp(@RequestBody Person person) {
+        if (persons.existsByLogin(person.getLogin())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The user with this login is exist");
+        }
         validatePersonFields(person);
         person.setPassword(encoder.encode(person.getPassword()));
         persons.save(person);

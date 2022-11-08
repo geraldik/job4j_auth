@@ -13,4 +13,5 @@ public interface PersonRepository extends CrudRepository<Person, Integer> {
 
     Person findByLogin(String username);
 
+    boolean existsByLogin(String login);
 }
