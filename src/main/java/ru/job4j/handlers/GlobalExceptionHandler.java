@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashMap;
@@ -23,8 +22,8 @@ public class GlobalExceptionHandler {
         this.objectMapper = objectMapper;
     }
 
-    @ExceptionHandler(value = {NullPointerException.class})
-    public void handleExceptionEmptyFields(Exception e, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    @ExceptionHandler({NullPointerException.class})
+    public void handleExceptionEmptyFields(Exception e, HttpServletResponse response) throws IOException {
         response.setStatus(HttpStatus.BAD_REQUEST.value());
         response.setContentType("application/json");
         response.getWriter().write(objectMapper.writeValueAsString(new HashMap<>() { {
@@ -34,8 +33,8 @@ public class GlobalExceptionHandler {
         LOGGER.error(e.getMessage());
     }
 
-    @ExceptionHandler(value = {IllegalArgumentException.class})
-    public void handleExceptionIllegalArgument(Exception e, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    @ExceptionHandler({IllegalArgumentException.class})
+    public void handleExceptionIllegalArgument(Exception e, HttpServletResponse response) throws IOException {
         response.setStatus(HttpStatus.BAD_REQUEST.value());
         response.setContentType("application/json");
         response.getWriter().write(objectMapper.writeValueAsString(new HashMap<>() { {

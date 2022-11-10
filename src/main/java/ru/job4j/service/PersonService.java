@@ -29,6 +29,10 @@ public class PersonService {
        return personRepository.existsById(id);
     }
 
+    public boolean existsByLogin(String login) {
+        return personRepository.existsByLogin(login);
+    }
+
     public void deleteById(int id) {
         personRepository.deleteById(id);
     }

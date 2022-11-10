@@ -58,6 +58,9 @@ public class PersonController {
 
     @PostMapping("/sign-up")
     public ResponseEntity<Void> signUp(@RequestBody Person person) {
+        if (persons.existsByLogin(person.getLogin())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The user with this login is exist");
+        }
         validatePersonFields(person);
         person.setPassword(encoder.encode(person.getPassword()));
         persons.save(person);
