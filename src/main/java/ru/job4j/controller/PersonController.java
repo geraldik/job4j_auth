@@ -7,6 +7,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import ru.job4j.domain.Person;
+import ru.job4j.dto.PersonDTO;
 import ru.job4j.service.PersonService;
 
 import java.util.List;
@@ -39,7 +40,7 @@ public class PersonController {
     @PutMapping()
     public ResponseEntity<Void> update(@RequestBody Person person) {
         var personUpdate = this.persons.update(person);
-        if(personUpdate.isEmpty()) {
+        if (personUpdate.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "There is no user to be updated");
         }
         validatePersonFields(person);
@@ -60,6 +61,14 @@ public class PersonController {
         validatePersonFields(person);
         person.setPassword(encoder.encode(person.getPassword()));
         persons.save(person);
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<Void> patch(@PathVariable int id, @RequestBody PersonDTO personDTO) {
+        var person = persons.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "There is no user with this id"));
+        person.setPassword(personDTO.getPassword());
         return ResponseEntity.ok().build();
     }
 
