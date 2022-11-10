@@ -5,17 +5,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 
 @Setter
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class PersonDTO {
-    @NotBlank(message = "Login must be not empty")
-    private String login;
-
+public class PersonPasswordDTO {
     @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#&()–{}:;',?/*~$^+=<>]).{8,20}$",
             message = """
                     Password must contain at least one digit [0-9].
