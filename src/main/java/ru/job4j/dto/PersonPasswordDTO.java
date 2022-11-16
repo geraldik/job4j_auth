@@ -12,13 +12,12 @@ import javax.validation.constraints.Pattern;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PersonPasswordDTO {
-    @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#&()–{}:;',?/*~$^+=<>]).{8,20}$",
-            message = """
-                    Password must contain at least one digit [0-9].
-                    Password must contain at least one lowercase Latin character [a-z].
-                    Password must contain at least one uppercase Latin character [A-Z].
-                    Password must contain at least one special character like ! @ # & ( ).
-                    Password must contain a length of at least 8 characters and a maximum of 20 characters.
-                    """)
+    @Pattern.List({
+            @Pattern(regexp = "(?=.*[0-9]).+", message = "Password must contain one digit."),
+            @Pattern(regexp = "(?=.*[a-z]).+", message = "Password must contain one lowercase letter."),
+            @Pattern(regexp = "(?=.*[A-Z]).+", message = "Password must contain one upper letter."),
+            @Pattern(regexp = "(?=.*[!@#$%^&*+=?-_()/\".,<>~`;:]).+", message = "Password must contain one special character."),
+            @Pattern(regexp = "(?=\\S+$).+", message = "Password must contain no whitespace.")
+    })
     private String password;
 }

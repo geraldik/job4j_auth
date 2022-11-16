@@ -9,6 +9,7 @@ import org.springframework.web.server.ResponseStatusException;
 import ru.job4j.domain.Person;
 import ru.job4j.dto.PersonDTO;
 import ru.job4j.dto.PersonPasswordDTO;
+import ru.job4j.exception.PersonNotFoundException;
 import ru.job4j.service.PersonService;
 
 import javax.validation.Valid;
@@ -30,7 +31,7 @@ public class PersonController {
     public ResponseEntity<Person> findById(@PathVariable int id) {
         var person = this.persons.findById(id);
         if (person.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "There is no user with this id");
+            throw new PersonNotFoundException("There is no user with this id");
         }
         return new ResponseEntity<>(
                 person.get(),
@@ -53,7 +54,7 @@ public class PersonController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable int id) {
         if (!persons.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "There is no user with this id");
+            throw new PersonNotFoundException("There is no user with this id");
         }
         persons.deleteById(id);
         return ResponseEntity.ok().build();
